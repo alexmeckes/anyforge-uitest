@@ -1,9 +1,3 @@
-<p align="center">
-  <picture>
-    <img src="https://raw.githubusercontent.com/mozilla-ai/any-forge/refs/heads/main/docs/images/any-forge-logo-mark.png" width="20%" alt="Project logo"/>
-  </picture>
-</p>
-
 <div align="center">
 
 # any-forge
