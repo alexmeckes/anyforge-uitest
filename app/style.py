@@ -1,7 +1,8 @@
 import streamlit as st
 
 
-def init_style():
+def init_style() -> None:
+    """Initialize the style for the app."""
     st.markdown(
         """
     <style>
