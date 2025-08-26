@@ -15,3 +15,25 @@
 </div>
 
 ## [Documentation](https://mozilla-ai.github.io/any-forge/)
+
+
+## Quickstart
+
+### Requirements
+
+- Python 3.11 or newer
+- API_KEYS to access whichever LLM + provider you want to use
+- We use UV for python version management
+
+### Install
+
+```bash
+uv venv
+source .venv/bin/activate
+uv sync --all-extras -U --python=3.13
+```
+
+### Run the Web App
+```
+streamlit run app/main.py
+```
