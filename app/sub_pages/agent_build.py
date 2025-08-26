@@ -1,6 +1,6 @@
 import streamlit as st
 from models.state import initialize_state_machine
-from sub_pages.build import (
+from sub_pages.build_pages import (
     render_complete_step,
     render_instructions_step,
     render_integrations_and_models_step,

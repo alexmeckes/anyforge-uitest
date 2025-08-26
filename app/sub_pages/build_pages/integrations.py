@@ -4,6 +4,7 @@ from any_forge.state import AgentStateMachine
 
 
 def render_integrations_and_models_step(agent_state: AgentStateMachine):
+    """Render the integrations and models step."""
     st.markdown("## Select Integrations and Models")
     st.write(
         "This is where we would narrow down which integrations we'll use as well as which model/provider will power it."
