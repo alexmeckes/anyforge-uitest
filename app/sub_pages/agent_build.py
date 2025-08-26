@@ -11,14 +11,11 @@ from sub_pages.build import (
 
 from any_forge.state import AgentCreationState
 
+agent_state = initialize_state_machine()
 
-def agent_builder_page():
+def agent_builder_page() -> None:
     """Render the agent builder page."""
-    st.title("🤖 Agent Builder")
-
-    agent_state = initialize_state_machine()
-
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.title(f"🤖 Agent Builder State: {agent_state.state}")
 
     if agent_state.state == AgentCreationState.INIT:
         render_welcome_step(agent_state)

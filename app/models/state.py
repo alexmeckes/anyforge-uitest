@@ -18,6 +18,6 @@ def initialize_state_machine() -> AgentStateMachine:
         AgentStateMachine: The state machine.
 
     """
-    if "agent_state_machine" not in st.session_state:
-        st.session_state.agent_state_machine = AgentStateMachine()
-    return st.session_state.agent_state_machine
+    if st.session_state.get("agent_state_machine") is None:
+        st.session_state["agent_state_machine"] = AgentStateMachine()
+    return st.session_state["agent_state_machine"]
