@@ -13,7 +13,10 @@ dependencies = [
   "openai>=1.99.3",
   "rich",
   "httpx",
-  "typing-extensions"
+  "typing-extensions",
+  "any-llm-sdk[all]",
+  "any-agent",
+  "streamlit>=1.48.1",
 ]
 
 [project.optional-dependencies]
