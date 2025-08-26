@@ -13,6 +13,7 @@ from any_forge.state import AgentCreationState
 
 agent_state = initialize_state_machine()
 
+
 def agent_builder_page() -> None:
     """Render the agent builder page."""
     st.title(f"🤖 Agent Builder State: {agent_state.state}")

@@ -2,6 +2,8 @@ from enum import StrEnum
 
 
 class AgentCreationState(StrEnum):
+    """Enum for the different states of the agent creation process."""
+
     INIT = "init"
     SELECT_MODEL = "select_model"
     SELECT_INTEGRATIONS = "select_integrations"
@@ -11,7 +13,10 @@ class AgentCreationState(StrEnum):
 
 
 class AgentStateMachine:
+    """State machine for the agent builder."""
+
     def __init__(self) -> None:
+        """Initialize the state machine."""
         self.state: AgentCreationState = AgentCreationState.INIT
 
     def next_state(self) -> None:
@@ -43,7 +48,7 @@ class AgentStateMachine:
             self.state = AgentCreationState.REVIEW
 
     def can_advance(self) -> bool:
-        """Always return True for now."""
+        """Return True for now."""
         return True
 
     def reset(self) -> None:
