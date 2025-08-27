@@ -1,13 +1,19 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from any_forge.generation.instructions import INSTRUCTIONS_MODEL, INSTRUCTIONS_PROMPT, generate_instructions
+from any_forge.generation.instructions import INSTRUCTIONS_MODEL, INSTRUCTIONS_PROMPT, _InstructionGenerator
 
 
 def test_generate_instructions() -> None:
     with patch("any_forge.generation.instructions.completion") as mock_completion:
-        mock_completion.return_value.choices[0].message.content = "Here are the instructions."
+        # completion returns a generator, we will mock a single return of that
+        mock_chunk = MagicMock()
+        mock_chunk.choices[0].delta.content = "Here are the instructions."
+        mock_completion.return_value = [mock_chunk]
 
-        result = generate_instructions("Task description")
+        generator = _InstructionGenerator("Task description")
+        for _ in generator.generate():
+            pass
+        result = generator.get_full_instructions()
 
         assert mock_completion.call_args[1]["model"] == INSTRUCTIONS_MODEL
         messages = mock_completion.call_args[1]["messages"]

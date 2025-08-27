@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import Any
 
 from any_llm import completion
@@ -19,12 +20,26 @@ OUTPUT_TEMPLATE = """
 """
 
 
-def generate_instructions(task_description: str, **kwargs: Any) -> str:
-    """Generate instructions based on the task description."""
-    response = completion(
-        model=INSTRUCTIONS_MODEL,
-        messages=[{"role": "system", "content": INSTRUCTIONS_PROMPT}, {"role": "user", "content": task_description}],
-        **kwargs,
-    )
-    general_instructions = response.choices[0].message.content.strip()  # type: ignore[union-attr]
-    return OUTPUT_TEMPLATE.format(general_instructions=general_instructions)
+class _InstructionGenerator:
+    def __init__(self, task_description: str, **kwargs: Any):
+        self.task_description = task_description
+        self.kwargs = kwargs
+        self.general_instructions = ""
+
+    def generate(self) -> Iterable[str]:
+        for chunk in completion(
+            model=INSTRUCTIONS_MODEL,
+            messages=[
+                {"role": "system", "content": INSTRUCTIONS_PROMPT},
+                {"role": "user", "content": self.task_description},
+            ],
+            stream=True,
+            **self.kwargs,
+        ):
+            content = chunk.choices[0].delta.content  # type: ignore[union-attr]
+            if content:
+                self.general_instructions += content
+                yield content
+
+    def get_full_instructions(self) -> str:
+        return OUTPUT_TEMPLATE.format(general_instructions=self.general_instructions)

@@ -6,6 +6,9 @@ def test_instructions_generation(any_forge_app: AppTest) -> None:
     any_forge_app.button("next_btn").click().run()
     any_forge_app.button("next_btn").click().run()
     any_forge_app.button("next_btn").click().run()
+    any_forge_app.text_area("task_description").set_value(
+        "Create an AI agent that can help with scheduling meetings."
+    ).run()
     any_forge_app.button("generate_instructions").click().run(timeout=30)
 
     current_agent = list(any_forge_app.session_state["agents"].values())[0]  #  noqa: RUF015
