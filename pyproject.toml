@@ -17,6 +17,7 @@ dependencies = [
   "any-llm-sdk[all]",
   "any-agent",
   "streamlit>=1.48.1",
+  "nest_asyncio",
 ]
 
 [project.optional-dependencies]
