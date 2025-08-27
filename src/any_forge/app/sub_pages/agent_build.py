@@ -1,30 +1,29 @@
 import streamlit as st
-from sub_pages.build_pages import (
+
+from any_forge.app.sub_pages.build_pages import (
     render_complete_step,
     render_instructions_step,
     render_integrations_and_models_step,
     render_review_step,
     render_welcome_step,
 )
-
 from any_forge.state import AgentCreationState, AgentForgeAgent
 from any_forge.storage.storage import load_agents, save_agents
-
-if st.session_state.get("agents") is None:
-    st.session_state["agents"] = dict(load_agents().items())
-
-agents = st.session_state["agents"]
 
 
 def agent_builder_page() -> None:
     """Render the agent builder page."""
+    if st.session_state.get("agents") is None:
+        st.session_state["agents"] = dict(load_agents().items())
+
+    agents = st.session_state["agents"]
+
     st.write(f"Found {len(agents)} agents")
-    if st.button("Create New Agent", type="primary"):
+    if st.button("Create New Agent", type="primary", key="create_new_agent"):
         new_agent = AgentForgeAgent()
         st.session_state["agents"][new_agent.id] = new_agent
         save_agents(st.session_state["agents"])
         st.success("Created new agent! Starting build process...")
-        st.rerun()
     else:
         st.info("Click the button above to create a new agent.")
     if not agents:

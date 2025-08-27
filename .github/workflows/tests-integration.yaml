@@ -29,6 +29,8 @@ jobs:
 
 
       - name: Run Integration tests (parallel with xdist)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: pytest tests/integration -v -n auto --cov --cov-report=xml
 
       - name: Upload coverage reports to Codecov

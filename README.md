@@ -34,6 +34,7 @@ uv sync --all-extras -U --python=3.13
 ```
 
 ### Run the Web App
+
 ```
-streamlit run app/main.py
+streamlit run streamlit_app.py
 ```

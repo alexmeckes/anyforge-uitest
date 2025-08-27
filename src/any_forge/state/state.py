@@ -72,6 +72,7 @@ class AgentForgeAgent(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     state_machine: AgentStateMachine = Field(default_factory=AgentStateMachine)
+    instructions: str | None = None
 
     run_kwargs: dict[str, Any] = Field(default_factory=dict)
 
