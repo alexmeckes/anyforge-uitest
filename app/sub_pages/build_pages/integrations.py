@@ -1,9 +1,9 @@
 import streamlit as st
 
-from any_forge.state import AgentStateMachine
+from any_forge.state import AgentForgeAgent
 
 
-def render_integrations_and_models_step(agent_state: AgentStateMachine):
+def render_integrations_and_models_step(agent: AgentForgeAgent):
     """Render the integrations and models step."""
     st.markdown("## Select Integrations and Models")
     st.write(

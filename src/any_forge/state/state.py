@@ -1,4 +1,7 @@
+import uuid
 from enum import StrEnum
+
+from pydantic import BaseModel, Field
 
 
 class AgentCreationState(StrEnum):
@@ -12,12 +15,10 @@ class AgentCreationState(StrEnum):
     COMPLETE = "complete"
 
 
-class AgentStateMachine:
+class AgentStateMachine(BaseModel):
     """State machine for the agent builder."""
 
-    def __init__(self) -> None:
-        """Initialize the state machine."""
-        self.state: AgentCreationState = AgentCreationState.INIT
+    state: AgentCreationState = AgentCreationState.INIT
 
     def next_state(self) -> None:
         """Advance to the next state in the creation process."""
@@ -56,3 +57,10 @@ class AgentStateMachine:
     def reset(self) -> None:
         """Reset the state machine to initial state."""
         self.state = AgentCreationState.INIT
+
+
+class AgentForgeAgent(BaseModel):
+    """Agent for the forge."""
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    state_machine: AgentStateMachine = Field(default_factory=AgentStateMachine)

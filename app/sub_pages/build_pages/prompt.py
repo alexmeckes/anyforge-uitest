@@ -1,9 +1,9 @@
 import streamlit as st
 
-from any_forge.state import AgentStateMachine
+from any_forge.state import AgentForgeAgent
 
 
-def render_instructions_step(agent_state: AgentStateMachine):
+def render_instructions_step(agent: AgentForgeAgent):
     """Render the instructions step."""
     st.markdown("## Create Instructions and Prompt")
     st.write(
