@@ -1,4 +1,5 @@
 from any_agent import AgentFramework, AgentTrace, AnyAgent
+from any_llm.utils.aio import run_async_in_sync
 
 from any_forge.state import AgentCreationState, AgentForgeAgent
 
@@ -22,3 +23,8 @@ async def run_agent_async(forge_agent: AgentForgeAgent) -> AgentTrace:
     trace: AgentTrace = await agent.run_async(prompt=prompt, **kwargs)
 
     return trace
+
+
+def run_agent(forge_agent: AgentForgeAgent) -> AgentTrace:
+    """Run the agent."""
+    return run_async_in_sync(run_agent_async(forge_agent))

@@ -3,7 +3,9 @@ from enum import StrEnum
 from typing import Any
 
 from any_agent import AgentConfig
-from pydantic import BaseModel, Field
+from any_agent.callbacks import Callback
+from any_agent.config import Tool
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 
 class AgentCreationState(StrEnum):
@@ -70,19 +72,38 @@ class AgentStateMachine(BaseModel):
 class AgentForgeAgent(BaseModel):
     """Agent for the forge."""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     state_machine: AgentStateMachine = Field(default_factory=AgentStateMachine)
     instructions: str | None = None
 
     run_kwargs: dict[str, Any] = Field(default_factory=dict)
 
+    callbacks: list[Callback] = Field(default_factory=list)
+
+    model_id: str | None = None
+    tools: list[Tool] = Field(default_factory=list)
+
+    @field_serializer("callbacks", when_used="json")
+    def serialize_callbacks(self, callbacks: list[Callback]) -> None:
+        """Serialize the callbacks."""
+        # Return None or empty list to exclude from serialization
+        # https://github.com/mozilla-ai/any-forge/issues/14
+        return
+
     def get_agent_config(self) -> AgentConfig:
         """Get the agent config."""
         if not self.state_machine.can_run():
             msg = f"Agent cannot create config: state is {self.state_machine.state}"
             raise ValueError(msg)
+
+        if self.model_id is None:
+            err_msg = "model_id is required"
+            raise ValueError(err_msg)
+
         return AgentConfig(
-            model_id="openai:gpt-5"
+            model_id=self.model_id, tools=self.tools, callbacks=self.callbacks, instructions=self.instructions
         )  # after https://github.com/mozilla-ai/any-forge/issues/3 this can be a real value
 
     def get_prompt(self) -> str:

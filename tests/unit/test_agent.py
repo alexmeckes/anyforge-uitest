@@ -10,6 +10,7 @@ from any_forge.state import AgentCreationState, AgentForgeAgent
 def test_get_agent_config_success() -> None:
     """Test get_agent_config succeeds in runnable states."""
     agent = AgentForgeAgent()
+    agent.model_id = "openai:gpt-5-nano"
 
     agent.state_machine.state = AgentCreationState.REVIEW
     agent.get_agent_config()
@@ -18,9 +19,18 @@ def test_get_agent_config_success() -> None:
     agent.get_agent_config()
 
 
+def test_get_agent_config_failure_model_id() -> None:
+    """Test get_agent_config raises ValueError if model_id is not set."""
+    agent = AgentForgeAgent()
+    agent.state_machine.state = AgentCreationState.REVIEW
+    with pytest.raises(ValueError, match="model_id is required"):
+        agent.get_agent_config()
+
+
 def test_get_agent_config_failure() -> None:
     """Test get_agent_config raises ValueError in non-runnable states."""
     agent = AgentForgeAgent()
+    agent.model_id = "openai:gpt-5-nano"
     invalid_states = [
         AgentCreationState.INIT,
         AgentCreationState.SELECT_INTEGRATIONS,
@@ -71,6 +81,7 @@ async def test_run_agent(mock_create_async: AsyncMock) -> None:
 
     agent = AgentForgeAgent()
     agent.state_machine.state = AgentCreationState.COMPLETE
+    agent.model_id = "openai:gpt-5-nano"
 
     trace = await run_agent_async(forge_agent=agent)
 
