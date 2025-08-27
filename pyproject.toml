@@ -43,6 +43,7 @@ namespaces = false
 [tool.pylint.messages_control]
 disable = [
     "import-outside-toplevel",
+    "no-member",  # E1101
 ]
 
 [tool.ruff]
