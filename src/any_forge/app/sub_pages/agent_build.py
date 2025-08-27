@@ -33,7 +33,7 @@ def agent_builder_page() -> None:
     agent = st.selectbox("Select an agent", agents.keys())
     if agent:
         agent_id = agent
-        agent = AgentForgeAgent.model_validate(agents[agent_id])
+        agent = agents[agent_id]
         agent_state = agent.state_machine
 
         if agent_state.state == AgentCreationState.INIT:

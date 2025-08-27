@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from typing import Any
 
+from any_agent.frameworks.tinyagent import DEFAULT_SYSTEM_PROMPT
 from any_llm import completion
 
 INSTRUCTIONS_MODEL = "openai:gpt-5-nano"
@@ -13,10 +14,12 @@ the best course of action from your instructions and the provided tools.
 """
 
 OUTPUT_TEMPLATE = """
+{base_instructions}
 # General Instructions
 {general_instructions}
 # Reminders
 - If a tool call fails with an error, don't try the same call again. Instead, try to understand the error and fix the root cause.
+
 """
 
 
@@ -25,6 +28,7 @@ class _InstructionGenerator:
         self.task_description = task_description
         self.kwargs = kwargs
         self.general_instructions = ""
+        self.base_instructions = DEFAULT_SYSTEM_PROMPT
 
     def generate(self) -> Iterable[str]:
         for chunk in completion(
@@ -42,4 +46,6 @@ class _InstructionGenerator:
                 yield content
 
     def get_full_instructions(self) -> str:
-        return OUTPUT_TEMPLATE.format(general_instructions=self.general_instructions)
+        return OUTPUT_TEMPLATE.format(
+            general_instructions=self.general_instructions, base_instructions=self.base_instructions
+        )

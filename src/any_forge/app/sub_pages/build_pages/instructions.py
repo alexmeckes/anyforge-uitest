@@ -2,6 +2,8 @@ import streamlit as st
 
 from any_forge.generation.instructions import _InstructionGenerator
 from any_forge.state import AgentForgeAgent
+from any_forge.tools.integrations import SUPPORTED_INTEGRATIONS
+from any_forge.tools.tools import get_recommended_tools
 
 
 def render_instructions_step(agent: AgentForgeAgent) -> None:
@@ -14,3 +16,9 @@ def render_instructions_step(agent: AgentForgeAgent) -> None:
         with st.spinner("Generating instructions..."):
             st.write_stream(generator.generate())
         agent.instructions = generator.get_full_instructions()
+        with st.spinner("Generating recommended tools..."):
+            integrations, tools = get_recommended_tools(task_description, SUPPORTED_INTEGRATIONS)
+        st.write(f"We recommend using the following integrations: {integrations}")
+        st.write(f"We recommend using the following tools from those integrations: {tools}")
+        agent.integrations = integrations
+        agent.tools = tools

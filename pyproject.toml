@@ -17,6 +17,7 @@ dependencies = [
   "any-llm-sdk[all]",
   "any-agent",
   "streamlit>=1.48.1",
+  "composio>=0.8.9",
   "nest_asyncio",
 ]
 

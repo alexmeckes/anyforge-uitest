@@ -4,8 +4,9 @@ from typing import Any
 
 from any_agent import AgentConfig
 from any_agent.callbacks import Callback
-from any_agent.config import Tool
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
+
+from any_forge.tools.integrations import create_tool_callable
 
 
 class AgentCreationState(StrEnum):
@@ -77,13 +78,15 @@ class AgentForgeAgent(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     state_machine: AgentStateMachine = Field(default_factory=AgentStateMachine)
     instructions: str | None = None
+    integrations: list[str] = Field(default_factory=list)
 
     run_kwargs: dict[str, Any] = Field(default_factory=dict)
 
     callbacks: list[Callback] = Field(default_factory=list)
 
     model_id: str | None = None
-    tools: list[Tool] = Field(default_factory=list)
+    prompt: str | None = None
+    tools: list[dict[str, Any]] = Field(default_factory=list)
 
     @field_serializer("callbacks", when_used="json")
     def serialize_callbacks(self, callbacks: list[Callback]) -> None:
@@ -102,8 +105,12 @@ class AgentForgeAgent(BaseModel):
             err_msg = "model_id is required"
             raise ValueError(err_msg)
 
+        wrapped_tools: list[Any] = []
+        for tool in self.tools:
+            wrapped_tools.append(create_tool_callable(tool["function"]))
+
         return AgentConfig(
-            model_id=self.model_id, tools=self.tools, callbacks=self.callbacks, instructions=self.instructions
+            model_id=self.model_id, tools=wrapped_tools, callbacks=self.callbacks, instructions=self.instructions
         )  # after https://github.com/mozilla-ai/any-forge/issues/3 this can be a real value
 
     def get_prompt(self) -> str:
@@ -111,7 +118,9 @@ class AgentForgeAgent(BaseModel):
         if not self.state_machine.can_run():
             msg = f"Agent cannot get prompt: state is {self.state_machine.state}"
             raise ValueError(msg)
-        return "I'm a prompt"  # after https://github.com/mozilla-ai/any-forge/issues/3 this can be a real value
+        if self.prompt is None:
+            self.prompt = ""
+        return self.prompt
 
     def get_kwargs(self) -> dict[str, Any]:
         """Get the kwargs used when running the agent."""
