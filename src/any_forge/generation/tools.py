@@ -1,6 +1,7 @@
 from typing import Any
 
-from any_llm import completion
+from any_agent.utils import run_async_in_sync
+from any_llm import acompletion
 from pydantic import BaseModel
 
 from any_forge.integrations import Integration, get_integrations
@@ -27,7 +28,7 @@ class ToolSelection(BaseModel):
     tool_names: list[str]
 
 
-def get_recommended_tools(description: str, integrations: list[str], **kwargs: Any) -> list[dict[str, Any]]:
+async def get_recommended_tools_async(description: str, integrations: list[str], **kwargs: Any) -> list[dict[str, Any]]:
     """Get recommended tools for the given integrations."""
     selected_integrations = [Integration(integration_str) for integration_str in integrations]
 
@@ -46,7 +47,7 @@ def get_recommended_tools(description: str, integrations: list[str], **kwargs: A
     Tool Names: {tool_names}
     Return a list of tools that are relevant to the task.
     """
-    response = completion(
+    response = await acompletion(
         model=SELECTION_MODEL,
         messages=[{"role": "system", "content": TOOL_SELECTION_PROMPT}, {"role": "user", "content": message}],
         response_format=ToolSelection,
@@ -60,3 +61,8 @@ def get_recommended_tools(description: str, integrations: list[str], **kwargs: A
             tool_schemas.append(tool_schemas_by_name[tool_name])
 
     return tool_schemas
+
+
+def get_recommended_tools(description: str, integrations: list[str], **kwargs: Any) -> list[dict[str, Any]]:
+    """Get recommended tools for the given integrations."""
+    return run_async_in_sync(get_recommended_tools_async(description, integrations, **kwargs))

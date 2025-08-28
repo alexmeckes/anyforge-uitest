@@ -69,38 +69,22 @@ def get_integrations(integrations: list[Integration]) -> dict[str, list[dict[str
     return tools
 
 
-def call_tool(name: str, args: dict[str, Any]) -> dict[str, Any]:
-    """Call a tool with the given input.
-
-    Args:
-        name: The name of the tool to call.
-        args: Dictionary containing the tool name and input.
-
-    Returns:
-        Dictionary containing the tool name and output.
-
-    """
-    if composio is None or user_id is None:
-        err_msg = "COMPOSIO_API_KEY and COMPOSIO_USER_ID environment variables are not set"
-        raise ValueError(err_msg)
-
-    result = composio.tools.execute(name, user_id=user_id, arguments=args)
-    # Convert ToolExecutionResponse to dict if needed
-    if hasattr(result, "__dict__"):
-        return result.__dict__
-    return result  # type: ignore[return-value]
-
-
 def create_tool_callable(tool_schema: dict[str, Any]) -> Callable[..., Any]:
     """Create a callable function from a Composio tool schema."""
-    if composio is None or user_id is None:
-        err_msg = "COMPOSIO_API_KEY and COMPOSIO_USER_ID environment variables are not set"
-        raise ValueError(err_msg)
+    name = tool_schema.get("name")
+    if not name:
+        msg = "Name is required"
+        raise ValueError(msg)
 
-    # Extract basic tool information
-    name = tool_schema.get("name", "unknown_tool")
-    description = tool_schema.get("description", f"Composio tool: {name}")
-    parameters_schema = tool_schema.get("parameters", {})
+    description = tool_schema.get("description")
+    if not description:
+        msg = "Description is required"
+        raise ValueError(msg)
+
+    parameters_schema = tool_schema.get("parameters")
+    if not parameters_schema:
+        msg = "Parameters are required"
+        raise ValueError(msg)
 
     # Type mapping for JSON schema to Python types
     type_mapping = {
@@ -114,12 +98,12 @@ def create_tool_callable(tool_schema: dict[str, Any]) -> Callable[..., Any]:
 
     def json_schema_to_python_type(schema: dict[str, Any]) -> type:
         """Convert JSON schema to Python type."""
-        schema_type = schema.get("type", "string")
+        schema_type = schema.get("type", "string")  # fallback is to stry
         return type_mapping.get(schema_type, str)
 
-    # Extract parameters from schema
     parameters = []
     annotations = {}
+    param_descriptions = {}
     if parameters_schema and isinstance(parameters_schema, dict):
         properties = parameters_schema.get("properties", {})
         required = parameters_schema.get("required", [])
@@ -127,8 +111,9 @@ def create_tool_callable(tool_schema: dict[str, Any]) -> Callable[..., Any]:
         for param_name, param_info in properties.items():
             base_param_type = json_schema_to_python_type(param_info)
 
+            param_descriptions[param_name] = param_info.get("description", f"Parameter {param_name}")
+
             if param_name not in required:
-                # Optional parameter
                 optional_param_type: Any = base_param_type | None
                 annotations[param_name] = optional_param_type
                 param = inspect.Parameter(
@@ -148,38 +133,29 @@ def create_tool_callable(tool_schema: dict[str, Any]) -> Callable[..., Any]:
                 )
             parameters.append(param)
 
-    # Create signature and enhanced docstring
     signature = inspect.Signature(parameters, return_annotation=dict)
-    enhanced_description = _create_enhanced_description(description, parameters_schema)
 
-    # Create the actual function
     def composio_tool_function(**kwargs: Any) -> dict[str, Any]:
         """Dynamically created Composio tool function."""
-        try:
-            return call_tool(name, kwargs)
-        except Exception as e:
-            return {"error": f"Error calling Composio tool {name}: {e!s}"}
+        if composio is None or user_id is None:
+            msg = "COMPOSIO_API_KEY and COMPOSIO_USER_ID environment variables are not set"
+            raise ValueError(msg)
 
-    # Set function metadata
+        result: dict[str, Any] = composio.tools.execute(name, user_id=user_id, arguments=kwargs)  # type: ignore[assignment]
+
+        if not result.get("successful"):
+            raise ValueError(result.get("error"))
+
+        data: dict[str, Any] | None = result.get("data")
+        if not data:
+            msg = "No response returned from Composio"
+            raise ValueError(msg)
+
+        return data
+
     composio_tool_function.__name__ = name
-    composio_tool_function.__doc__ = enhanced_description
+    composio_tool_function.__doc__ = description
     composio_tool_function.__signature__ = signature  # type: ignore[attr-defined]
     composio_tool_function.__annotations__ = {**annotations, "return": dict}
 
     return composio_tool_function
-
-
-def _create_enhanced_description(description: str, parameters_schema: dict[str, Any]) -> str:
-    """Create enhanced docstring with parameter descriptions."""
-    enhanced_description = description
-    if parameters_schema and isinstance(parameters_schema, dict):
-        properties = parameters_schema.get("properties", {})
-        if properties:
-            param_descriptions = []
-            for param_name, param_info in properties.items():
-                param_desc = param_info.get("description", f"Parameter {param_name}")
-                param_descriptions.append(f"    {param_name}: {param_desc}")
-
-            if param_descriptions:
-                enhanced_description += "\n\nArgs:\n" + "\n".join(param_descriptions)
-    return enhanced_description
