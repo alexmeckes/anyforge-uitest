@@ -1,8 +1,8 @@
 import nest_asyncio
 import streamlit as st
 
+from any_forge.app.agent_builder import agent_builder_page
 from any_forge.app.style import init_style
-from any_forge.app.sub_pages.agent_build import agent_builder_page
 
 nest_asyncio.apply()
 

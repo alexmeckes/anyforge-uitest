@@ -1,6 +1,6 @@
 import streamlit as st
 
-from any_forge.app.sub_pages.build_pages import (
+from any_forge.app.components import (
     render_instructions,
     render_integrations,
     render_model_ids,
@@ -10,7 +10,7 @@ from any_forge.app.sub_pages.build_pages import (
     render_tools,
 )
 from any_forge.state import AgentForgeAgent
-from any_forge.storage.storage import load_agents, save_agents
+from any_forge.storage import load_agents, save_agents
 
 
 def agent_builder_page() -> None:

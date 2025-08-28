@@ -2,7 +2,7 @@ import json
 import os
 from typing import Any
 
-from any_forge.state.state import AgentForgeAgent
+from any_forge.state import AgentForgeAgent
 
 STORAGE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "storage")
 

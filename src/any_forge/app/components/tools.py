@@ -1,7 +1,7 @@
 import streamlit as st
 
+from any_forge.generation.tools import get_recommended_tools
 from any_forge.state import AgentForgeAgent
-from any_forge.tools.tools import get_recommended_tools
 
 
 @st.fragment

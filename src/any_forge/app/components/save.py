@@ -1,7 +1,7 @@
 import streamlit as st
 
 from any_forge.state import AgentForgeAgent
-from any_forge.storage.storage import save_agents
+from any_forge.storage import save_agents
 
 
 @st.fragment

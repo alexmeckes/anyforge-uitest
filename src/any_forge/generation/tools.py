@@ -3,7 +3,7 @@ from typing import Any
 from any_llm import completion
 from pydantic import BaseModel
 
-from any_forge.tools.integrations import Integration, get_integrations
+from any_forge.integrations import Integration, get_integrations
 
 SELECTION_MODEL = "openai:gpt-5-nano"
 

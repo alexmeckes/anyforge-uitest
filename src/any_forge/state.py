@@ -5,7 +5,7 @@ from any_agent import AgentConfig
 from any_agent.callbacks import Callback
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from any_forge.tools.integrations import create_tool_callable
+from any_forge.integrations import create_tool_callable
 
 
 class AgentForgeAgent(BaseModel):

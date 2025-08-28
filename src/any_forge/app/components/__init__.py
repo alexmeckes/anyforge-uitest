@@ -3,10 +3,12 @@ from .integrations import render_integrations
 from .models import render_model_ids
 from .run import render_run
 from .save import render_save
+from .status_callback import StreamlitStatusCallback
 from .task_description import render_task_description
 from .tools import render_tools
 
 __all__ = [
+    "StreamlitStatusCallback",
     "render_instructions",
     "render_integrations",
     "render_model_ids",

@@ -1,7 +1,7 @@
 import streamlit as st
 
+from any_forge.integrations import SUPPORTED_INTEGRATIONS
 from any_forge.state import AgentForgeAgent
-from any_forge.tools.integrations import SUPPORTED_INTEGRATIONS
 
 
 def render_integrations(agent: AgentForgeAgent) -> None:

@@ -1,6 +1,6 @@
 import streamlit as st
 
-from any_forge.app.components.streamlit_callback import StreamlitStatusCallback
+from any_forge.app.components.status_callback import StreamlitStatusCallback
 from any_forge.run import run_agent
 from any_forge.state import AgentForgeAgent
 
