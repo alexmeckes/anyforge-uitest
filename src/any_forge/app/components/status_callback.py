@@ -39,12 +39,6 @@ class StreamlitStatusCallback(Callback):
 
     def _update_status(self, step_name: str, input_value: str, output_value: str):
         """Update the Streamlit status with formatted information."""
-        max_length = 800
-        if len(input_value) > max_length:
-            input_value = f"[Truncated]...{input_value[-max_length:]}"
-        if len(output_value) > max_length:
-            output_value = f"[Truncated]...{output_value[-max_length:]}"
-
         if input_value or output_value:
             message = f"Step: {step_name}\n"
             if input_value:
@@ -54,4 +48,5 @@ class StreamlitStatusCallback(Callback):
         else:
             message = f"Step: {step_name}"
 
-        st.write(message)
+        with st.expander(step_name, expanded=True):
+            st.write(message)

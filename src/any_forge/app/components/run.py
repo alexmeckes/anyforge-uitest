@@ -15,6 +15,13 @@ def render_run(agent: AgentForgeAgent) -> None:
     if st.button("Run"):
         agent.callbacks = [StreamlitStatusCallback()]
         with st.spinner("Running agent..."):
-            out = run_agent(agent)
+            trace = run_agent(agent)
+        st.download_button(
+            label="Download Trace",
+            data=trace.model_dump_json(),
+            file_name="trace.json",
+            mime="application/json",
+            icon=":material/download:",
+        )
         with st.expander("Trace", expanded=False):
-            st.write(out.spans_to_messages())
+            st.write(trace.spans_to_messages())
