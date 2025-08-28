@@ -6,11 +6,6 @@ from pydantic import BaseModel
 from any_forge.tools.integrations import Integration, get_integrations
 
 SELECTION_MODEL = "openai:gpt-5-nano"
-INTEGRATION_SELECTION_PROMPT = """
-You are an expert in determining which integrations are needed to solve a task.
-You will receive a task description and a list of integrations.
-You should return a list of integrations that are needed to solve the task.
-"""
 
 
 class IntegrationSelection(BaseModel):
@@ -32,32 +27,9 @@ class ToolSelection(BaseModel):
     tool_names: list[str]
 
 
-def get_recommended_tools(
-    description: str, integrations: list[str], **kwargs: Any
-) -> tuple[list[str], list[dict[str, Any]]]:
+def get_recommended_tools(description: str, integrations: list[str], **kwargs: Any) -> list[dict[str, Any]]:
     """Get recommended tools for the given integrations."""
-    message = f"""
-    Task Description: {description}
-    Integrations: {integrations}
-    Return a list of integrations that are relevant to the task.
-    """
-    # Step 1: Narrow down which integrations are needed
-    response = completion(
-        model=SELECTION_MODEL,
-        messages=[{"role": "system", "content": INTEGRATION_SELECTION_PROMPT}, {"role": "user", "content": message}],
-        response_format=IntegrationSelection,
-        **kwargs,
-    )
-    integration_selections = IntegrationSelection.model_validate_json(response.choices[0].message.content.strip())  # type: ignore[union-attr]
-
-    # Convert string integration names back to Integration enums
-    selected_integrations = []
-    for integration_str in integration_selections.integrations:
-        try:
-            selected_integrations.append(Integration(integration_str))
-        except ValueError:
-            # Skip invalid integration names
-            continue
+    selected_integrations = [Integration(integration_str) for integration_str in integrations]
 
     tools_by_integration = get_integrations(selected_integrations)
     tool_names: list[str] = []
@@ -69,7 +41,6 @@ def get_recommended_tools(
                 tool_names.append(tool_name)
                 tool_schemas_by_name[tool_name] = tool_schema
 
-    # Step 2, narrow down which tools from the relevant integrations are needed
     message = f"""
     Task Description: {description}
     Tool Names: {tool_names}
@@ -88,4 +59,4 @@ def get_recommended_tools(
         if tool_name in tool_schemas_by_name:
             tool_schemas.append(tool_schemas_by_name[tool_name])
 
-    return integration_selections.integrations, tool_schemas
+    return tool_schemas

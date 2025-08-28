@@ -10,6 +10,6 @@ def render_tools(agent: AgentForgeAgent) -> None:
     assert agent.task_description is not None
     st.subheader("Tools")
     with st.spinner("Generating recommended tools..."):
-        _, recommended_tools = get_recommended_tools(agent.task_description, agent.integrations)
+        recommended_tools = get_recommended_tools(agent.task_description, agent.integrations)
         st.write([{t["function"]["name"]: t["function"]["description"]} for t in recommended_tools])
     agent.tools = recommended_tools
