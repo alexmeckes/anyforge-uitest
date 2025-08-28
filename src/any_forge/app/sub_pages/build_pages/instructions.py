@@ -8,7 +8,7 @@ from any_forge.state import AgentForgeAgent
 def render_instructions(agent: AgentForgeAgent) -> None:
     """Render the instructions step."""
     assert agent.task_description is not None
-    generator = _InstructionGenerator(agent.task_description)
+    generator = _InstructionGenerator(agent.task_description, agent.tools)
     st.subheader("Instructions")
     with st.spinner("Generating instructions..."):
         st.write_stream(generator.generate())

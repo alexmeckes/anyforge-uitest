@@ -10,7 +10,9 @@ def test_generate_instructions() -> None:
         mock_chunk.choices[0].delta.content = "Here are the instructions."
         mock_completion.return_value = [mock_chunk]
 
-        generator = _InstructionGenerator("Task description")
+        task_description = "Task description"
+        tools = [{"function": {"name": "tool1", "description": "Tool 1 description"}}]
+        generator = _InstructionGenerator(task_description, tools)
         for _ in generator.generate():
             pass
         result = generator.get_full_instructions()
@@ -19,7 +21,10 @@ def test_generate_instructions() -> None:
         messages = mock_completion.call_args[1]["messages"]
         assert messages == [
             {"role": "system", "content": INSTRUCTIONS_PROMPT},
-            {"role": "user", "content": "Task description"},
+            {
+                "role": "user",
+                "content": f"Here is the task description: {generator.task_description}\nAnd the list of tools that will be available: {generator.tools}",
+            },
         ]
         assert "# General Instructions" in result
         assert "Here are the instructions." in result

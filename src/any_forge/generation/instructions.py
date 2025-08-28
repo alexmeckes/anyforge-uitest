@@ -5,12 +5,20 @@ from any_agent.frameworks.tinyagent import DEFAULT_SYSTEM_PROMPT
 from any_llm import completion
 
 INSTRUCTIONS_MODEL = "openai:gpt-5-nano"
+
 INSTRUCTIONS_PROMPT = """
-You are an expert in providing detailed instructions.
-You will receive a task description and your job is to provide instructions for an LLM Agent that will try to solve the task.
-The instructions should be concise, clear, and actionable.
-Don't include detailed steps to be followed, the LLM Agent should be able to figure out
-the best course of action from your instructions and the provided tools.
+You are an expert in providing instructions for LLM Agents.
+You will receive a task description and a list of available tools and your job is to return instructions for an LLM Agent that will try to solve the task.
+The instructions should follow the following output format:
+
+# Goal
+
+A 1-paragraph, high-level description of the task the agent will need to solve.
+
+# Steps
+
+A small bullet-point list describing to the agent what is the high-level sequence of steps to follow.
+Don't make the list too detailed, leave room for the agent to fill in the gaps.
 """
 
 OUTPUT_TEMPLATE = """
@@ -24,8 +32,9 @@ OUTPUT_TEMPLATE = """
 
 
 class _InstructionGenerator:
-    def __init__(self, task_description: str, **kwargs: Any):
+    def __init__(self, task_description: str, tool_schemas: list[dict[str, Any]], **kwargs: Any):
         self.task_description = task_description
+        self.tools = [f"{schema['function']['name']}: {schema['function']['description']}" for schema in tool_schemas]
         self.kwargs = kwargs
         self.general_instructions = ""
         self.base_instructions = DEFAULT_SYSTEM_PROMPT
@@ -35,7 +44,10 @@ class _InstructionGenerator:
             model=INSTRUCTIONS_MODEL,
             messages=[
                 {"role": "system", "content": INSTRUCTIONS_PROMPT},
-                {"role": "user", "content": self.task_description},
+                {
+                    "role": "user",
+                    "content": f"Here is the task description: {self.task_description}\nAnd the list of tools that will be available: {self.tools}",
+                },
             ],
             stream=True,
             **self.kwargs,
