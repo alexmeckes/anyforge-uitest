@@ -1,13 +1,17 @@
-from .complete import render_complete_step
-from .instructions import render_instructions_step
-from .integrations import render_integrations_and_models_step
-from .review import render_review_step
-from .welcome import render_welcome_step
+from .instructions import render_instructions
+from .integrations import render_integrations
+from .models import render_model_ids
+from .run import render_run
+from .save import render_save
+from .task_description import render_task_description
+from .tools import render_tools
 
 __all__ = [
-    "render_complete_step",
-    "render_instructions_step",
-    "render_integrations_and_models_step",
-    "render_review_step",
-    "render_welcome_step",
+    "render_instructions",
+    "render_integrations",
+    "render_model_ids",
+    "render_run",
+    "render_save",
+    "render_task_description",
+    "render_tools",
 ]

@@ -30,6 +30,8 @@ jobs:
 
       - name: Run Integration tests (parallel with xdist)
         env:
+          COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
+          COMPOSIO_USER_ID: ${{ secrets.COMPOSIO_USER_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: pytest tests/integration -v --cov --cov-report=xml
 

@@ -1,14 +1,12 @@
 from any_agent import AgentFramework, AgentTrace, AnyAgent
 from any_llm.utils.aio import run_async_in_sync
 
-from any_forge.state import AgentCreationState, AgentForgeAgent
+from any_forge.state import AgentForgeAgent
 
 
 async def run_agent_async(forge_agent: AgentForgeAgent) -> AgentTrace:
     """Run the agent."""
-    if forge_agent.state_machine.state not in [AgentCreationState.REVIEW, AgentCreationState.COMPLETE]:
-        msg = f"Agent is not available to run: state is {forge_agent.state_machine.state}"
-        raise ValueError(msg)
+    forge_agent._check_fully_defined()
 
     config = forge_agent.get_agent_config()
 

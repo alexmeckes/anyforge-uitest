@@ -23,6 +23,8 @@ def save_agents(agents: dict[str, AgentForgeAgent]) -> None:
     """Save the agents to the database."""
     if not os.path.exists(STORAGE_DIR):
         os.makedirs(STORAGE_DIR)
-    agents_dict: dict[str, dict[str, Any]] = {agent.id: agent.model_dump() for agent in agents.values()}
+    agents_dict: dict[str, dict[str, Any]] = {
+        agent.id: agent.model_dump(exclude={"callbacks"}) for agent in agents.values()
+    }
     with open(os.path.join(STORAGE_DIR, "agents.json"), "w") as f:
         json.dump(agents_dict, f)
