@@ -52,7 +52,7 @@ def agent_builder_page() -> None:
                     with col3:
                         render_instructions(agent)
 
-                    if agent.model_id and agent.instructions and agent.tools:
-                        with st.sidebar:
-                            render_save(agent)
-                        render_run(agent)
+            if agent.model_id and agent.instructions and agent.tools:
+                with st.sidebar:
+                    render_save(agent)
+                render_run(agent)

@@ -39,14 +39,7 @@ class StreamlitStatusCallback(Callback):
 
     def _update_status(self, step_name: str, input_value: str, output_value: str):
         """Update the Streamlit status with formatted information."""
-        if input_value or output_value:
-            message = f"Step: {step_name}\n"
-            if input_value:
-                message += f"Input: {input_value}\n"
-            if output_value:
-                message += f"Output: {output_value}"
-        else:
-            message = f"Step: {step_name}"
+        message = f"Input: {input_value}\nOutput: {output_value}"
 
         with st.expander(step_name, expanded=True):
             st.write(message)

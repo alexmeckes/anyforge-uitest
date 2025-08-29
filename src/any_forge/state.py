@@ -1,7 +1,7 @@
 import uuid
 from typing import Any
 
-from any_agent import AgentConfig
+from any_agent import AgentConfig, AgentTrace
 from any_agent.callbacks import Callback
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
@@ -28,6 +28,8 @@ class AgentForgeAgent(BaseModel):
     model_id: str | None = None
     prompt: str | None = None
     tools: list[dict[str, Any]] = Field(default_factory=list)
+
+    traces: list[AgentTrace] = Field(default_factory=list)
 
     @field_serializer("callbacks", when_used="json")
     def serialize_callbacks(self, callbacks: list[Callback]) -> None:

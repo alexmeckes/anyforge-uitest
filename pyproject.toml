@@ -15,7 +15,7 @@ dependencies = [
   "httpx",
   "typing-extensions",
   "any-llm-sdk[all]",
-  "any-agent>=1.6.0",
+  "any-agent>=1.6.1",
   "streamlit>=1.48.1",
   "composio>=0.8.9",
   "nest_asyncio",
