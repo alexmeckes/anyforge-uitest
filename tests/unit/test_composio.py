@@ -1,22 +1,11 @@
 # mypy: disable-error-code="no-untyped-def,operator,misc,arg-type,no-any-return"
 import inspect
-import json
 from collections.abc import Generator
-from pathlib import Path
-from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
 
 from any_forge.integrations import create_tool_callable
-
-
-@pytest.fixture
-def slack_tools_spec() -> list[dict[str, Any]]:
-    """Load the Slack tools specification from JSON file."""
-    spec_file = Path(__file__).parent.parent / "assets" / "slack_tools_spec.json"
-    with spec_file.open() as f:
-        return json.load(f)
 
 
 @pytest.fixture

@@ -43,6 +43,9 @@ class AgentForgeAgent(BaseModel):
             if getattr(self, attr) is None:
                 err_msg = f"{attr} is required"
                 raise ValueError(err_msg)
+        if not self.tools:
+            err_msg = "tools is required"
+            raise ValueError(err_msg)
         return True
 
     def get_agent_config(self) -> AgentConfig:
