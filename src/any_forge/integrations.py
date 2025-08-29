@@ -6,6 +6,7 @@ from typing import Any
 
 from composio import Composio
 from composio.core.provider._openai import OpenAIProvider
+from pydantic import BaseModel
 
 composio_api_key = os.getenv("COMPOSIO_API_KEY")
 _user_id = os.getenv("COMPOSIO_USER_ID")
@@ -42,10 +43,71 @@ class Integration(StrEnum):
 
 SUPPORTED_INTEGRATIONS = list(Integration)
 
-# for app in SUPPORTED_INTEGRATIONS:
-#     connection_request = composio.toolkits.authorize(user_id=user_id, toolkit=app)
-#     print(f"🔗 Visit the URL to authorize:\n👉 {connection_request.redirect_url}")
-#     connection_request.wait_for_connection(100)
+
+class AuthStatus(BaseModel):
+    """Authentication status for an integration."""
+
+    integration: str
+    is_authenticated: bool
+    error_message: str | None = None
+    connection_id: str | None = None
+
+
+def check_authentication_status(integrations: list[Integration]) -> list[AuthStatus]:
+    """Check authentication status for a list of integrations.
+
+    Args:
+        integrations: List of integrations to check authentication for
+
+    Returns:
+        List of AuthStatus objects indicating authentication status for each integration
+
+    """
+    if composio is None or user_id is None:
+        err_msg = "COMPOSIO_API_KEY and COMPOSIO_USER_ID environment variables are not set"
+        raise ValueError(err_msg)
+
+    statuses = []
+    for integration in integrations:
+        # this is almost definitely not completely correct, but it's a step in the right direction I think
+        connected_accounts = composio.connected_accounts.list(
+            user_ids=[user_id], toolkit_slugs=[str(integration).upper()]
+        )
+
+        if any(account.status == "ACTIVE" for account in connected_accounts.items):
+            statuses.append(
+                AuthStatus(
+                    integration=str(integration),
+                    is_authenticated=True,
+                )
+            )
+        else:
+            statuses.append(
+                AuthStatus(
+                    integration=str(integration),
+                    is_authenticated=False,
+                    error_message=f"No active accounts found, account statuses: {[account.status for account in connected_accounts.items]}",
+                )
+            )
+    return statuses
+
+
+def get_authentication_url(integration: Integration) -> str | None:
+    """Get authentication URL for an integration.
+
+    Args:
+        integration: Integration to get authentication URL for
+
+    Returns:
+        Authentication URL or None if unable to generate
+
+    """
+    if composio is None or user_id is None:
+        msg = "COMPOSIO_API_KEY and COMPOSIO_USER_ID environment variables are not set"
+        raise ValueError(msg)
+
+    connection_request = composio.toolkits.authorize(user_id=user_id, toolkit=integration)
+    return connection_request.redirect_url if connection_request.redirect_url else None
 
 
 def get_integrations(integrations: list[Integration]) -> dict[str, list[dict[str, Any]]]:

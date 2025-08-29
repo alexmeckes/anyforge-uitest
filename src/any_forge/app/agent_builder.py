@@ -1,6 +1,7 @@
 import streamlit as st
 
 from any_forge.app.components import (
+    render_auth_check,
     render_instructions,
     render_integrations,
     render_model_ids,
@@ -36,6 +37,9 @@ def agent_builder_page() -> None:
         render_integrations(agent)
 
         if agent.integrations:
+            with st.expander("Authentication Status", expanded=False):
+                render_auth_check(agent)
+
             render_task_description(agent)
 
             if agent.task_description:

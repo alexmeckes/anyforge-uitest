@@ -1,3 +1,4 @@
+from .auth_check import render_auth_check
 from .instructions import render_instructions
 from .integrations import render_integrations
 from .models import render_model_ids
@@ -9,6 +10,7 @@ from .tools import render_tools
 
 __all__ = [
     "StreamlitStatusCallback",
+    "render_auth_check",
     "render_instructions",
     "render_integrations",
     "render_model_ids",
