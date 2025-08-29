@@ -1,7 +1,5 @@
-from collections.abc import Iterable
 from typing import Any
 
-from any_agent.frameworks.tinyagent import DEFAULT_SYSTEM_PROMPT
 from any_llm import completion
 
 INSTRUCTIONS_MODEL = "openai:gpt-5-nano"
@@ -21,43 +19,24 @@ A small bullet-point list describing to the agent what is the high-level sequenc
 Don't make the list too detailed, leave room for the agent to fill in the gaps.
 """
 
-OUTPUT_TEMPLATE = """
-{base_instructions}
-# General Instructions
-{general_instructions}
-# Reminders
-- If a tool call fails with an error, don't try the same call again. Instead, try to understand the error and fix the root cause.
 
-"""
+def tool_schemas_to_strings(tool_schemas: list[dict[str, Any]]) -> list[str]:
+    """Convert tool schemas to a list of strings."""
+    return [f"{schema['function']['name']}: {schema['function']['description']}" for schema in tool_schemas]
 
 
-class _InstructionGenerator:
-    def __init__(self, task_description: str, tool_schemas: list[dict[str, Any]], **kwargs: Any):
-        self.task_description = task_description
-        self.tools = [f"{schema['function']['name']}: {schema['function']['description']}" for schema in tool_schemas]
-        self.kwargs = kwargs
-        self.general_instructions = ""
-        self.base_instructions = DEFAULT_SYSTEM_PROMPT
-
-    def generate(self) -> Iterable[str]:
-        for chunk in completion(
-            model=INSTRUCTIONS_MODEL,
-            messages=[
-                {"role": "system", "content": INSTRUCTIONS_PROMPT},
-                {
-                    "role": "user",
-                    "content": f"Here is the task description: {self.task_description}\nAnd the list of tools that will be available: {self.tools}",
-                },
-            ],
-            stream=True,
-            **self.kwargs,
-        ):
-            content = chunk.choices[0].delta.content  # type: ignore[union-attr]
-            if content:
-                self.general_instructions += content
-                yield content
-
-    def get_full_instructions(self) -> str:
-        return OUTPUT_TEMPLATE.format(
-            general_instructions=self.general_instructions, base_instructions=self.base_instructions
-        )
+def generate_instructions(task_description: str, tool_schemas: list[dict[str, Any]], **kwargs: Any) -> str:
+    """Generate instructions for an LLM Agent based on the task description and available tools."""
+    tools = tool_schemas_to_strings(tool_schemas)
+    response = completion(
+        model=INSTRUCTIONS_MODEL,
+        messages=[
+            {"role": "system", "content": INSTRUCTIONS_PROMPT},
+            {
+                "role": "user",
+                "content": f"Here is the task description: {task_description}\nThe list of tools that will be available: {tools}",
+            },
+        ],
+        **kwargs,
+    )
+    return str(response.choices[0].message.content)  # type: ignore[union-attr]

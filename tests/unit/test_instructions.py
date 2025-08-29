@@ -1,21 +1,24 @@
 from unittest.mock import MagicMock, patch
 
-from any_forge.generation.instructions import INSTRUCTIONS_MODEL, INSTRUCTIONS_PROMPT, _InstructionGenerator
+from any_forge.generation.instructions import (
+    INSTRUCTIONS_MODEL,
+    INSTRUCTIONS_PROMPT,
+    generate_instructions,
+    tool_schemas_to_strings,
+)
 
 
 def test_generate_instructions() -> None:
     with patch("any_forge.generation.instructions.completion") as mock_completion:
         # completion returns a generator, we will mock a single return of that
-        mock_chunk = MagicMock()
-        mock_chunk.choices[0].delta.content = "Here are the instructions."
-        mock_completion.return_value = [mock_chunk]
+        mock_response = MagicMock()
+        mock_response.choices[0].message.content = "Here are the instructions."
+        mock_completion.return_value = mock_response
 
         task_description = "Task description"
         tools = [{"function": {"name": "tool1", "description": "Tool 1 description"}}]
-        generator = _InstructionGenerator(task_description, tools)
-        for _ in generator.generate():
-            pass
-        result = generator.get_full_instructions()
+        converted_tools = tool_schemas_to_strings(tools)
+        result = generate_instructions(task_description, tools)
 
         assert mock_completion.call_args[1]["model"] == INSTRUCTIONS_MODEL
         messages = mock_completion.call_args[1]["messages"]
@@ -23,13 +26,7 @@ def test_generate_instructions() -> None:
             {"role": "system", "content": INSTRUCTIONS_PROMPT},
             {
                 "role": "user",
-                "content": f"Here is the task description: {generator.task_description}\nAnd the list of tools that will be available: {generator.tools}",
+                "content": f"Here is the task description: {task_description}\nThe list of tools that will be available: {converted_tools}",
             },
         ]
-        assert "# General Instructions" in result
         assert "Here are the instructions." in result
-        assert "# Reminders" in result
-        assert (
-            "- If a tool call fails with an error, don't try the same call again. Instead, try to understand the error and fix the root cause."
-            in result
-        )

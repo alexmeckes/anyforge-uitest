@@ -1,27 +1,32 @@
 import streamlit as st
+from any_agent.frameworks.tinyagent import DEFAULT_SYSTEM_PROMPT
 
-from any_forge.generation.instructions import _InstructionGenerator
+from any_forge.generation.instructions import generate_instructions
 from any_forge.state import AgentForgeAgent
+
+FULL_INSTRUCTIONS = """
+{base_instructions}
+{generated_instructions}
+# Reminders
+- If a tool call fails with an error, don't try the same call again. Instead, try to understand the error and fix the root cause.
+"""
 
 
 @st.fragment
 def render_instructions(agent: AgentForgeAgent) -> None:
     """Render the instructions step."""
     assert agent.task_description is not None
+    assert agent.tools is not None
+
     st.subheader("Instructions")
 
     placeholder = st.empty()
 
     gen_instructions = st.session_state.get("gen_instructions", None)
 
-    generator = _InstructionGenerator(agent.task_description, agent.tools)
     if gen_instructions is None:
         with st.spinner("Generating instructions..."):
-            # Stream the content to the placeholder
-            with placeholder.container():
-                st.write_stream(generator.generate())
-        # Store the generated instructions
-        gen_instructions = generator.general_instructions
+            gen_instructions = generate_instructions(agent.task_description, agent.tools)
         st.session_state["gen_instructions"] = gen_instructions
 
     with placeholder.container():
@@ -33,5 +38,6 @@ def render_instructions(agent: AgentForgeAgent) -> None:
             help="You can edit the generated instructions before finalizing them.",
         )
 
-    generator.general_instructions = edited_instructions
-    agent.instructions = generator.get_full_instructions()
+    agent.instructions = FULL_INSTRUCTIONS.format(
+        base_instructions=DEFAULT_SYSTEM_PROMPT, generated_instructions=edited_instructions
+    )
