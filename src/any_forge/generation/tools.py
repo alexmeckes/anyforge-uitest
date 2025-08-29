@@ -17,7 +17,7 @@ class IntegrationSelection(BaseModel):
 
 TOOL_SELECTION_PROMPT = """
 You are an expert in determining which tools are needed to solve a task.
-You will receive a task description and a list of tool names
+You will receive a task description and a list of tool names.
 You should return a a list of tools that you think are relevant to the task.
 """
 
@@ -28,23 +28,32 @@ class ToolSelection(BaseModel):
     tool_names: list[str]
 
 
-async def get_recommended_tools_async(description: str, integrations: list[str], **kwargs: Any) -> list[dict[str, Any]]:
-    """Get recommended tools for the given integrations."""
+def get_tool_schemas(integrations: list[str]) -> list[dict[str, Any]]:
+    """Get tool schemas.
+
+    Args:
+        integrations (list[str]): A list of integration names.
+
+    Returns:
+        list[dict[str, Any]]: A list of tool schemas.
+
+    """
     selected_integrations = [Integration(integration_str) for integration_str in integrations]
 
     tools_by_integration = get_integrations(selected_integrations)
-    tool_names: list[str] = []
-    tool_schemas_by_name: dict[str, dict[str, Any]] = {}
+    tool_schemas: list[dict[str, Any]] = []
     for integration in tools_by_integration:
         for tool_schema in tools_by_integration[integration]:
             if isinstance(tool_schema, dict) and "function" in tool_schema:
-                tool_name = f"{integration}:{tool_schema['function']['name']}"
-                tool_names.append(tool_name)
-                tool_schemas_by_name[tool_name] = tool_schema
+                tool_schemas.append(tool_schema)
+    return tool_schemas
 
+
+async def get_recommended_tools_async(description: str, tool_schemas: list[dict[str, Any]], **kwargs: Any) -> list[str]:
+    """Get names of recommended tools for the given tool_schemas."""
     message = f"""
     Task Description: {description}
-    Tool Names: {tool_names}
+    Tool Names: {[t["function"]["name"] for t in tool_schemas]}
     Return a list of tools that are relevant to the task.
     """
     response = await acompletion(
@@ -55,14 +64,9 @@ async def get_recommended_tools_async(description: str, integrations: list[str],
     )
     tool_selections = ToolSelection.model_validate_json(response.choices[0].message.content.strip())  # type: ignore[union-attr]
 
-    tool_schemas = []
-    for tool_name in tool_selections.tool_names:
-        if tool_name in tool_schemas_by_name:
-            tool_schemas.append(tool_schemas_by_name[tool_name])
-
-    return tool_schemas
+    return tool_selections.tool_names
 
 
-def get_recommended_tools(description: str, integrations: list[str], **kwargs: Any) -> list[dict[str, Any]]:
+def get_recommended_tools(description: str, tool_schemas: list[dict[str, Any]], **kwargs: Any) -> list[str]:
     """Get recommended tools for the given integrations."""
-    return run_async_in_sync(get_recommended_tools_async(description, integrations, **kwargs))
+    return run_async_in_sync(get_recommended_tools_async(description, tool_schemas, **kwargs))

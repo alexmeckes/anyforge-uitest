@@ -45,18 +45,14 @@ def agent_builder_page() -> None:
             if agent.task_description:
                 if st.button("Create Agent", key="create_agent"):
                     st.divider()
-                    col1, col2, col3 = st.columns([1, 2, 3])
-
-                    with col1:
-                        render_model_ids(agent)
-
-                    with col2:
-                        render_tools(agent)
-
-                    with col3:
-                        render_instructions(agent)
+                    render_model_ids(agent)
+                    st.divider()
+                    render_tools(agent)
+                    st.divider()
+                    render_instructions(agent)
 
             if agent.model_id and agent.instructions and agent.tools:
                 with st.sidebar:
                     render_save(agent)
+                st.divider()
                 render_run(agent)
