@@ -40,12 +40,9 @@ class AgentForgeAgent(BaseModel):
 
     def _check_fully_defined(self) -> bool:
         for attr in ("model_id", "instructions", "tools"):
-            if getattr(self, attr) is None:
+            if not getattr(self, attr, False):
                 err_msg = f"{attr} is required"
                 raise ValueError(err_msg)
-        if not self.tools:
-            err_msg = "tools is required"
-            raise ValueError(err_msg)
         return True
 
     def get_agent_config(self) -> AgentConfig:
