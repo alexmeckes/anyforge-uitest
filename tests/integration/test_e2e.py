@@ -18,18 +18,14 @@ def test_e2e_generation(any_forge_app: AppTest) -> None:
     assert _get_agent(any_forge_app).integrations is not None
     any_forge_app.text_area(key="task_description").set_value(
         "Create an AI agent that can summarize Pull Requests."
-    ).run()
-    assert _get_agent(any_forge_app).task_description is not None
-    any_forge_app.button(key="create_agent").click().run(timeout=120)
+    ).run(timeout=120)
 
     current_agent = _get_agent(any_forge_app)
     assert current_agent.model_id is not None
     assert current_agent.instructions is not None
     assert current_agent.tools is not None
 
-    any_forge_app.text_area(key="prompt").set_value("Find my most recent pull request").run()
-    assert _get_agent(any_forge_app).prompt is not None
-    any_forge_app.button(key="run_button").click().run(timeout=120)
+    any_forge_app.chat_input(key="prompt_input").set_value("Find my most recent pull request").run(timeout=120)
     assert _get_agent(any_forge_app).traces is not None
     assert len(_get_agent(any_forge_app).traces) == 1
     assert _get_agent(any_forge_app).traces[0].final_output is not None

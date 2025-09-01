@@ -21,7 +21,7 @@ def render_run(agent: AgentForgeAgent) -> None:
     else:
         st.session_state.messages = []
 
-    if prompt := st.chat_input():
+    if prompt := st.chat_input(key="prompt_input"):
         conversation.chat_message("user").write(prompt)
         if st.session_state.messages:
             agent.prompt = f"Conversation history:\n{st.session_state.messages}. New message: {prompt}"
