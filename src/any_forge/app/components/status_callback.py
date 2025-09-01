@@ -17,29 +17,25 @@ if TYPE_CHECKING:
 class StreamlitStatusCallback(Callback):
     """Callback to update Streamlit status with agent progress."""
 
+    def __init__(self, container):
+        """Initialize the StreamlitStatusCallback."""
+        self.container = container
+        super().__init__()
+
     def after_llm_call(self, context: Context, *args, **kwargs) -> Context:
         """Update status after LLM calls."""
         span = context.current_span
         attributes: Mapping[str, AttributeValue] = span.attributes
-        input_value = str(attributes.get(GenAI.INPUT_MESSAGES, ""))
         output_value = str(attributes.get(GenAI.OUTPUT, ""))
-
-        self._update_status(span.name, input_value, output_value)
+        st.session_state.messages.append({"role": "assistant", "content": output_value})
+        self.container.chat_message("assistant").write(output_value)
         return context
 
     def after_tool_execution(self, context: Context, *args, **kwargs) -> Context:
         """Update status after tool executions."""
         span = context.current_span
         attributes: Mapping[str, AttributeValue] = span.attributes
-        input_value = str(attributes.get(GenAI.TOOL_ARGS, ""))
         output_value = str(attributes.get(GenAI.OUTPUT, ""))
-
-        self._update_status(span.name, input_value, output_value)
+        st.session_state.messages.append({"role": "assistant", "content": output_value, "avatar": "🛠️"})
+        self.container.chat_message("assistant", avatar="🛠️").write(output_value)
         return context
-
-    def _update_status(self, step_name: str, input_value: str, output_value: str):
-        """Update the Streamlit status with formatted information."""
-        message = f"Input: {input_value}\nOutput: {output_value}"
-
-        with st.expander(step_name, expanded=True):
-            st.write(message)

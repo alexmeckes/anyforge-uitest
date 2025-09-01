@@ -10,25 +10,26 @@ def render_run(agent: AgentForgeAgent) -> None:
     """Render the run step."""
     st.subheader("Run the Agent")
 
-    prompt = st.text_area("Prompt", height=200, value=agent.get_prompt(), key="prompt")
-    agent.prompt = prompt
+    if st.button("Clear Conversation", type="secondary", key="clear_conversation"):
+        st.session_state.messages = []
 
-    if st.button("Run", key="run_button"):
-        agent.callbacks = [StreamlitStatusCallback()]
-        with st.spinner("Running agent..."):
-            trace = run_agent(agent)
-            agent.traces.append(trace)
+    conversation = st.container()
+    if "messages" in st.session_state:
+        for message in st.session_state.messages:
+            conversation.chat_message(message["role"], avatar=message.get("avatar", None)).write(message["content"])
+    else:
+        st.session_state.messages = []
 
-    if agent.traces:
-        latest_trace = agent.traces[-1]
-        st.download_button(
-            label="Download Trace",
-            data=latest_trace.model_dump_json(),
-            file_name="trace.json",
-            mime="application/json",
-            icon=":material/download:",
-            on_click="ignore",
-            key="download_trace_button",
-        )
-        with st.expander("Trace", expanded=False):
-            st.write(latest_trace.spans_to_messages())
+    if prompt := st.chat_input():
+        conversation.chat_message("user").write(prompt)
+        if st.session_state.messages:
+            agent.prompt = f"Conversation history:\n{st.session_state.messages}. New message: {prompt}"
+        else:
+            agent.prompt = prompt
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        agent.callbacks = [StreamlitStatusCallback(conversation)]  # type: ignore[no-untyped-call]
+        trace = run_agent(agent)
+        agent.traces.append(trace)
+
+        if trace:
+            st.rerun()

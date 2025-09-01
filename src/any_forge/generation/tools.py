@@ -1,7 +1,7 @@
 from typing import Any
 
-from any_agent.utils import run_async_in_sync
 from any_llm import acompletion
+from any_llm.utils.aio import run_async_in_sync
 from pydantic import BaseModel
 
 from any_forge.integrations import Integration, get_integrations

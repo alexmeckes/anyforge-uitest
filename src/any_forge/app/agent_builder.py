@@ -43,16 +43,30 @@ def agent_builder_page() -> None:
             render_task_description(agent)
 
             if agent.task_description:
-                if st.button("Create Agent", key="create_agent"):
-                    st.divider()
-                    render_model_ids(agent)
-                    st.divider()
-                    render_tools(agent)
-                    st.divider()
-                    render_instructions(agent)
+                st.divider()
+                render_model_ids(agent)
+                st.divider()
+                render_tools(agent)
+                st.divider()
+                render_instructions(agent)
 
             if agent.model_id and agent.instructions and agent.tools:
                 with st.sidebar:
                     render_save(agent)
                 st.divider()
                 render_run(agent)
+
+                if agent.traces:
+                    with st.sidebar:
+                        latest_trace = agent.traces[-1]
+                        st.download_button(
+                            label="Download Latest Trace",
+                            data=latest_trace.model_dump_json(),
+                            file_name="trace.json",
+                            mime="application/json",
+                            icon=":material/download:",
+                            on_click="ignore",
+                            key="download_trace_button",
+                        )
+                        with st.expander("Latest Trace", expanded=False):
+                            st.write(latest_trace.spans_to_messages())
