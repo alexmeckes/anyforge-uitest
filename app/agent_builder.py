@@ -1,6 +1,8 @@
 import streamlit as st
 
-from any_forge.app.components import (
+from any_forge.state import AgentForgeAgent
+from any_forge.storage import load_agents, save_agents
+from app.components import (
     render_auth_check,
     render_instructions,
     render_integrations,
@@ -10,8 +12,6 @@ from any_forge.app.components import (
     render_task_description,
     render_tools,
 )
-from any_forge.state import AgentForgeAgent
-from any_forge.storage import load_agents, save_agents
 
 
 def agent_builder_page() -> None:
