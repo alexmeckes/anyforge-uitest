@@ -2,7 +2,7 @@ from typing import Any
 
 from any_llm import completion
 
-INSTRUCTIONS_MODEL = "openai:gpt-5-nano"
+INSTRUCTIONS_MODEL = "openai:gpt-4.1-mini"
 
 INSTRUCTIONS_PROMPT = """
 You are an expert in providing instructions for LLM Agents.

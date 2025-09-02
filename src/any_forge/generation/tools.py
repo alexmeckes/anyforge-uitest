@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from any_forge.integrations import Integration, get_integrations
 
-SELECTION_MODEL = "openai:gpt-5-nano"
+SELECTION_MODEL = "openai:gpt-4.1-mini"
 
 
 class IntegrationSelection(BaseModel):
