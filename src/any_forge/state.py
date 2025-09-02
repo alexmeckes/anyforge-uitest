@@ -3,6 +3,7 @@ from typing import Any
 
 from any_agent import AgentConfig, AgentTrace
 from any_agent.callbacks import Callback
+from any_agent.frameworks.tinyagent import final_answer
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from any_forge.integrations import create_tool_callable
@@ -52,6 +53,8 @@ class AgentForgeAgent(BaseModel):
         wrapped_tools: list[Any] = []
         for tool in self.tools:
             wrapped_tools.append(create_tool_callable(tool["function"]))
+
+        wrapped_tools.append(final_answer)
 
         return AgentConfig(
             model_id=str(self.model_id), tools=wrapped_tools, callbacks=self.callbacks, instructions=self.instructions
