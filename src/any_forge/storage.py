@@ -4,7 +4,7 @@ from typing import Any
 
 from any_forge.state import AgentForgeAgent
 
-STORAGE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "storage")
+STORAGE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "storage")
 
 
 def load_agents() -> dict[str, AgentForgeAgent]:
