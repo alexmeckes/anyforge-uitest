@@ -2,6 +2,7 @@ import streamlit as st
 
 from any_forge.state import AgentForgeAgent
 from any_forge.storage import save_agents
+from app.state import get_state
 
 
 @st.fragment
@@ -10,5 +11,7 @@ def render_save(agent: AgentForgeAgent) -> None:
     st.subheader("Save the Agent")
 
     if st.button("Save", key="save_btn"):
-        save_agents(st.session_state["agents"])
+        state = get_state()
+
+        save_agents(state.agents)
         st.success("Agent saved!")

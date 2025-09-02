@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import streamlit as st
 from any_agent.callbacks import Callback, Context
 from any_agent.tracing.attributes import GenAI
+
+from app.state import get_state
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -27,7 +28,7 @@ class StreamlitStatusCallback(Callback):
         span = context.current_span
         attributes: Mapping[str, AttributeValue] = span.attributes
         output_value = str(attributes.get(GenAI.OUTPUT, ""))
-        st.session_state.messages.append({"role": "assistant", "content": output_value})
+        get_state().messages.append({"role": "assistant", "content": output_value})
         self.container.chat_message("assistant").write(output_value)
         return context
 
@@ -36,6 +37,6 @@ class StreamlitStatusCallback(Callback):
         span = context.current_span
         attributes: Mapping[str, AttributeValue] = span.attributes
         output_value = str(attributes.get(GenAI.OUTPUT, ""))
-        st.session_state.messages.append({"role": "assistant", "content": output_value, "avatar": "🛠️"})
+        get_state().messages.append({"role": "assistant", "content": output_value, "avatar": "🛠️"})
         self.container.chat_message("assistant", avatar="🛠️").write(output_value)
         return context

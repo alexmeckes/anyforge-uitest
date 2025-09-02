@@ -1,10 +1,11 @@
 from streamlit.testing.v1 import AppTest
 
 from any_forge.state import AgentForgeAgent
+from app.state import STATE_KEY
 
 
 def _get_agent(any_forge_app: AppTest) -> AgentForgeAgent:
-    agents = list(any_forge_app.session_state["agents"].values())
+    agents = list(any_forge_app.session_state[STATE_KEY].agents.values())
     assert len(agents) == 1
     agent = agents[0]
     assert agent is not None

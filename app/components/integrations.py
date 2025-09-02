@@ -9,5 +9,7 @@ def render_integrations(agent: AgentForgeAgent) -> None:
     st.markdown("## Select Integrations")
     st.write("This is where we would narrow down which integrations the agent will have access to..")
     # display a bubble for each integration, which you can expand to see the tools available
-    selected_integrations = st.multiselect("Select Integrations", SUPPORTED_INTEGRATIONS, key="integrations")
+    selected_integrations = st.multiselect(
+        "Select Integrations", SUPPORTED_INTEGRATIONS, key="integrations", default=agent.integrations
+    )
     agent.integrations = selected_integrations
