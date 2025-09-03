@@ -1,6 +1,7 @@
 from typing import Any
 
 import streamlit as st
+from any_agent.evaluation.schemas import EvaluationOutput
 from pydantic import BaseModel, Field
 
 from any_forge.integrations import AuthStatus
@@ -17,6 +18,8 @@ class StreamlitState(BaseModel):
     auth_statuses: list[AuthStatus] = Field(default_factory=list)
 
     gen_evaluations: list[str] = Field(default_factory=list)
+
+    evaluation_results: list[EvaluationOutput] = Field(default_factory=list)
 
     gen_instructions: str | None = None
 

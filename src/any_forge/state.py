@@ -3,6 +3,7 @@ from typing import Any
 
 from any_agent import AgentConfig, AgentTrace
 from any_agent.callbacks import Callback
+from any_agent.evaluation.schemas import EvaluationOutput
 from any_agent.frameworks.tinyagent import final_answer
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
@@ -19,6 +20,10 @@ class AgentForgeAgent(BaseModel):
     name: str | None = None
 
     integrations: list[str] = Field(default_factory=list)
+
+    evaluations: list[str] = Field(default_factory=list)
+
+    evaluation_results: list[EvaluationOutput] = Field(default_factory=list)
 
     task_description: str | None = None
 

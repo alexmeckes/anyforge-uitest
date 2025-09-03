@@ -7,6 +7,7 @@ from app.components import (
     render_auth_check,
     render_create_agent,
     render_delete_agent,
+    render_evaluations,
     render_instructions,
     render_integrations,
     render_model_ids,
@@ -89,3 +90,4 @@ def agent_builder_page() -> None:
                         )
                         with st.expander("Latest Trace", expanded=False):
                             st.write(latest_trace.spans_to_messages())
+                    render_evaluations(agent)
