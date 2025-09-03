@@ -13,7 +13,9 @@ STATE_KEY = "state"
 class StreamlitState(BaseModel):
     """Streamlit state."""
 
-    agents: dict[str, AgentForgeAgent] = Field(default_factory=dict)
+    development_agents: dict[str, AgentForgeAgent] = Field(default_factory=dict)
+
+    completed_agents: dict[str, AgentForgeAgent] = Field(default_factory=dict)
 
     auth_statuses: list[AuthStatus] = Field(default_factory=list)
 

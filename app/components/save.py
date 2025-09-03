@@ -13,5 +13,5 @@ def render_save(agent: AgentForgeAgent) -> None:
     if st.button("Save", key="save_btn"):
         state = get_state()
 
-        save_agents(state.agents)
+        save_agents(state.development_agents, state.completed_agents)
         st.success("Agent saved!")

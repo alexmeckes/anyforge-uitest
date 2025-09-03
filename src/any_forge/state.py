@@ -39,6 +39,9 @@ class AgentForgeAgent(BaseModel):
 
     traces: list[AgentTrace] = Field(default_factory=list)
 
+    complete: bool = Field(default=False)
+    """A user can toggle this to complete to indicate that they are finished building the agent."""
+
     @field_serializer("callbacks", when_used="json")
     def serialize_callbacks(self, callbacks: list[Callback]) -> None:
         """Serialize the callbacks."""

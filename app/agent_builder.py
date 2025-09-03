@@ -1,10 +1,9 @@
-from typing import TYPE_CHECKING
-
 import streamlit as st
 
 from any_forge.storage import load_agents
 from app.components import (
     render_auth_check,
+    render_complete_agent,
     render_create_agent,
     render_delete_agent,
     render_evaluations,
@@ -18,23 +17,22 @@ from app.components import (
 )
 from app.state import STATE_KEY, StreamlitState, get_state
 
-if TYPE_CHECKING:
-    from any_forge.state import AgentForgeAgent
-
 
 def agent_builder_page() -> None:
     """Render the agent builder page."""
     if st.session_state.get(STATE_KEY) is None:
-        agents_dict: dict[str, AgentForgeAgent] = dict(load_agents().items())
-        st.session_state[STATE_KEY] = StreamlitState(agents=agents_dict)
+        development_agents, completed_agents = load_agents()
+        st.session_state[STATE_KEY] = StreamlitState(
+            development_agents=development_agents, completed_agents=completed_agents
+        )
     state: StreamlitState = get_state()
 
     with st.sidebar:
         render_create_agent()
-        if not state.agents:
+        if not state.development_agents:
             st.info("No agents found. Click the button above to create a new agent.")
             return
-        agent_keys = list(state.agents.keys())
+        agent_keys = list(state.development_agents.keys())
         default_index = 0
         if state.selected_agent_id and state.selected_agent_id in agent_keys:
             default_index = agent_keys.index(state.selected_agent_id)
@@ -43,17 +41,15 @@ def agent_builder_page() -> None:
             "Select an agent",
             agent_keys,
             index=default_index,
-            format_func=lambda x: state.agents[x].name or state.agents[x].id,
+            format_func=lambda x: state.development_agents[x].name or state.development_agents[x].id,
         )
 
-        # Update selected_agent_id when user changes selection
-        if agent_id != state.selected_agent_id:
-            state.selected_agent_id = agent_id
+        state.selected_agent_id = agent_id
 
-        if agent_id in state.agents:
-            render_delete_agent(state.agents[agent_id])
+        if agent_id in state.development_agents:
+            render_delete_agent(state.development_agents[agent_id])
 
-    if agent := state.agents[agent_id]:
+    if agent := state.development_agents[agent_id]:
         render_integrations(agent)
 
         if agent.integrations:
@@ -91,3 +87,6 @@ def agent_builder_page() -> None:
                         with st.expander("Latest Trace", expanded=False):
                             st.write(latest_trace.spans_to_messages())
                     render_evaluations(agent)
+
+                st.divider()
+                render_complete_agent(agent)

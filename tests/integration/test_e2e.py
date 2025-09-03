@@ -5,7 +5,7 @@ from app.state import STATE_KEY
 
 
 def _get_agent(any_forge_app: AppTest) -> AgentForgeAgent:
-    agents = list(any_forge_app.session_state[STATE_KEY].agents.values())
+    agents = list(any_forge_app.session_state[STATE_KEY].development_agents.values())
     assert len(agents) == 1
     agent = agents[0]
     assert agent is not None
@@ -36,7 +36,6 @@ def test_e2e_generation(any_forge_app: AppTest) -> None:
     assert len(_get_agent(any_forge_app).traces) == 1
     assert _get_agent(any_forge_app).traces[0].final_output is not None
 
-    # Test evaluation generation
     any_forge_app.button(key="add_evaluation").click().run(timeout=60)
     current_agent = _get_agent(any_forge_app)
     assert current_agent.evaluations is not None
@@ -44,7 +43,6 @@ def test_e2e_generation(any_forge_app: AppTest) -> None:
     assert isinstance(current_agent.evaluations[0], str)
     assert len(current_agent.evaluations[0].strip()) > 0
 
-    # Test running evaluations on the latest trace
     any_forge_app.button(key="run_evaluations").click().run(timeout=60)
     current_agent = _get_agent(any_forge_app)
     assert len(current_agent.traces) == 1
@@ -52,3 +50,16 @@ def test_e2e_generation(any_forge_app: AppTest) -> None:
     assert len(current_agent.evaluation_results) == 1
     assert hasattr(current_agent.evaluation_results[0], "passed")
     assert hasattr(current_agent.evaluation_results[0], "reasoning")
+
+    agent_id_before_completion = current_agent.id
+    assert agent_id_before_completion in any_forge_app.session_state[STATE_KEY].development_agents
+    assert agent_id_before_completion not in any_forge_app.session_state[STATE_KEY].completed_agents
+
+    any_forge_app.button(key="complete_btn").click().run(timeout=60)
+
+    assert agent_id_before_completion not in any_forge_app.session_state[STATE_KEY].development_agents
+    assert agent_id_before_completion in any_forge_app.session_state[STATE_KEY].completed_agents
+
+    completed_agent = any_forge_app.session_state[STATE_KEY].completed_agents[agent_id_before_completion]
+    assert completed_agent.complete is True
+    assert completed_agent.id == agent_id_before_completion

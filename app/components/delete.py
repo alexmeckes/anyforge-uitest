@@ -22,11 +22,11 @@ def render_delete_agent(agent: AgentForgeAgent) -> None:
 
         with col1:
             if st.button("✅ Yes, Delete", key="confirm_delete", type="primary"):
-                if agent.id in state.agents:
-                    del state.agents[agent.id]
+                if agent.id in state.development_agents:
+                    del state.development_agents[agent.id]
                     if state.selected_agent_id == agent.id:
                         state.selected_agent_id = None
-                    save_agents(state.agents)
+                    save_agents(state.development_agents, state.completed_agents)
                     st.success(f"Agent '{agent.name or agent.id}' has been deleted!")
                     state.delete_confirmation = False
                     st.session_state[STATE_KEY] = state

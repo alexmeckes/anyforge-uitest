@@ -1,4 +1,5 @@
 from .auth_check import render_auth_check
+from .complete import render_complete_agent, render_uncomplete_agent
 from .create import render_create_agent
 from .delete import render_delete_agent
 from .evaluations import render_evaluations
@@ -14,6 +15,7 @@ from .tools import render_tools
 __all__ = [
     "StreamlitStatusCallback",
     "render_auth_check",
+    "render_complete_agent",
     "render_create_agent",
     "render_delete_agent",
     "render_evaluations",
@@ -24,4 +26,5 @@ __all__ = [
     "render_save",
     "render_task_description",
     "render_tools",
+    "render_uncomplete_agent",
 ]

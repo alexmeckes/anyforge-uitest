@@ -32,7 +32,7 @@ def render_create_agent() -> None:
             else:
                 new_agent.name = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
-            state.agents[new_agent.id] = new_agent
+            state.development_agents[new_agent.id] = new_agent
             state.selected_agent_id = new_agent.id
-            save_agents(state.agents)
+            save_agents(state.development_agents, state.completed_agents)
             st.rerun()  # this makes it so that the page refreshes and picks up the new agent as being an option.
