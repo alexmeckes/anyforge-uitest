@@ -11,5 +11,4 @@ cd "$(dirname "$0")/.."
 python -m pip install -U -e '.[all]' --quiet
 
 # Run on all files.
-python -m mypy src/
-python -m mypy tests/
+python -m mypy src/ tests/ app/

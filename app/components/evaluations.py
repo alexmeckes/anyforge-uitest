@@ -5,21 +5,6 @@ from any_agent.evaluation.schemas import EvaluationOutput
 
 from any_forge.generation.evaluation import generate_evaluation
 from any_forge.state import AgentForgeAgent
-from app.state import get_state
-
-
-def _sync_evaluations(agent: AgentForgeAgent) -> list[str]:
-    """Sync evaluations between agent and state, returning the current list."""
-    state = get_state()
-    if not state.gen_evaluations and agent.evaluations:
-        state.gen_evaluations = agent.evaluations.copy()
-    return state.gen_evaluations or agent.evaluations
-
-
-def _update_evaluations(agent: AgentForgeAgent, evaluations: list[str]) -> None:
-    """Update evaluations in both agent and state."""
-    agent.evaluations = evaluations
-    get_state().gen_evaluations = evaluations
 
 
 def _run_single_evaluation(trace: AgentTrace, model_id: str, evaluation: str) -> EvaluationOutput:
@@ -42,10 +27,11 @@ def render_evaluations(agent: AgentForgeAgent) -> None:
     """Render the evaluations step."""
     assert agent.task_description is not None
     assert agent.tools is not None
+    assert agent.model_id is not None
 
     st.subheader("Evaluations")
 
-    current_evaluations = _sync_evaluations(agent)
+    current_evaluations = agent.evaluations
 
     if st.button("+ Autogenerate New Criteria", key="add_evaluation"):
         with st.spinner("Generating new evaluation criteria..."):
@@ -53,7 +39,7 @@ def render_evaluations(agent: AgentForgeAgent) -> None:
                 task_description=agent.task_description, tools=agent.tools, existing_evaluations=current_evaluations
             )
             updated_evaluations = [*current_evaluations, new_evaluation]
-            _update_evaluations(agent, updated_evaluations)
+            agent.evaluations = updated_evaluations
             st.rerun()
 
     if not current_evaluations:
@@ -73,10 +59,10 @@ def render_evaluations(agent: AgentForgeAgent) -> None:
         with col2:
             if st.button("🗑️", key=f"delete_evaluation_{i}", help="Delete this evaluation"):
                 remaining_evaluations = current_evaluations[:i] + current_evaluations[i + 1 :]
-                _update_evaluations(agent, remaining_evaluations)
+                agent.evaluations = remaining_evaluations
                 st.rerun()
 
-    _update_evaluations(agent, updated_evaluations)
+    agent.evaluations = updated_evaluations
 
     if updated_evaluations and agent.traces:
         st.divider()
@@ -87,4 +73,3 @@ def render_evaluations(agent: AgentForgeAgent) -> None:
                 evaluation_results.append(result)
 
             agent.evaluation_results = evaluation_results
-            get_state().evaluation_results = evaluation_results

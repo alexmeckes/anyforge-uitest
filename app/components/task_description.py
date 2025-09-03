@@ -14,9 +14,7 @@ def render_task_description(agent: AgentForgeAgent) -> None:
 
     task_description = st.text_area("Task Description", height=200, key=task_description_key, value=current_value)
 
-    # Update both agent and state when task description changes
     if task_description != agent.task_description:
         agent.task_description = task_description
-        get_state().task_description = task_description
         get_state().should_regenerate_instructions = True
         get_state().should_regenerate_tools = True

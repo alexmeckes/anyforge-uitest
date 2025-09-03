@@ -17,8 +17,6 @@ class StreamlitState(BaseModel):
 
     auth_statuses: list[AuthStatus] = Field(default_factory=list)
 
-    gen_evaluations: list[str] = Field(default_factory=list)
-
     evaluation_results: list[EvaluationOutput] = Field(default_factory=list)
 
     gen_instructions: str | None = None
