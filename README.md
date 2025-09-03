@@ -23,7 +23,10 @@
 
 - Python 3.11 or newer
 - API_KEYS to access whichever LLM + provider you want to use, they should be set in your environment variables
-- Composio API keys and configuration set up. WIP, refer to [composio docs](https://docs.composio.dev/docs/quickstart) for info. Your user ID is your email address
+    - OPENAI_API_KEY should be set since we default to using OpenAI models right now 
+- Composio API keys and configuration set up. WIP, refer to [composio docs](https://docs.composio.dev/docs/quickstart) for info.
+    - COMPOSIO_USER_ID is the environment variable for your user id (email address)
+    - COMPOSIO_API_KEY is your api key (see the composio quickstart for info on how to get that)
 - We use UV for python version management
 
 ### Install
