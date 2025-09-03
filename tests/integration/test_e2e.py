@@ -17,7 +17,12 @@ def test_e2e_generation(any_forge_app: AppTest) -> None:
     any_forge_app.button(key="create_new_agent").click().run()
     any_forge_app.multiselect("integrations").set_value(["GITHUB"]).run()
     assert _get_agent(any_forge_app).integrations is not None
-    any_forge_app.text_area(key="task_description").set_value(
+
+    # Get the agent to access its ID for the dynamic key
+    agent = _get_agent(any_forge_app)
+    task_description_key = f"task_description_{agent.id}"
+
+    any_forge_app.text_area(key=task_description_key).set_value(
         "Create an AI agent that can summarize Pull Requests."
     ).run(timeout=120)
 

@@ -16,6 +16,8 @@ class AgentForgeAgent(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
 
+    name: str | None = None
+
     integrations: list[str] = Field(default_factory=list)
 
     task_description: str | None = None

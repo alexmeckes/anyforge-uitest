@@ -6,14 +6,17 @@ from app.state import get_state
 
 def render_task_description(agent: AgentForgeAgent) -> None:
     """Render the instructions step."""
-    if agent.task_description:
-        existing_task_description = agent.task_description
-    else:
-        existing_task_description = None
+    # Use agent-specific key to avoid state conflicts between different agents
+    task_description_key = f"task_description_{agent.id}"
 
-    descr = get_state().task_description or existing_task_description
-    task_description = st.text_area("Task Description", height=200, key="task_description", value=descr)
-    if task_description and task_description != agent.task_description:
+    # Initialize the text area with the agent's current task description
+    current_value = agent.task_description or ""
+
+    task_description = st.text_area("Task Description", height=200, key=task_description_key, value=current_value)
+
+    # Update both agent and state when task description changes
+    if task_description != agent.task_description:
         agent.task_description = task_description
+        get_state().task_description = task_description
         get_state().should_regenerate_instructions = True
         get_state().should_regenerate_tools = True

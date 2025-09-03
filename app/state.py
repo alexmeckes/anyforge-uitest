@@ -30,6 +30,10 @@ class StreamlitState(BaseModel):
 
     messages: list[dict[str, Any]] = Field(default_factory=list)
 
+    delete_confirmation: bool = Field(default=False)
+
+    selected_agent_id: str | None = None
+
 
 def get_state() -> StreamlitState:
     """Get the streamlit state."""
