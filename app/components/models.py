@@ -15,5 +15,7 @@ def render_model_ids(agent: AgentForgeAgent) -> None:
         agent_model_id = agent.model_id.split(":")[1] if agent.model_id.split(":")[1] else DEFAULT_MODEL_ID
     else:
         agent_model_id = DEFAULT_MODEL_ID
-    model_id = st.selectbox("Select a model", model_ids, index=model_ids.index(agent_model_id))
+    model_id = st.selectbox(
+        "Select a model", model_ids, index=model_ids.index(agent_model_id), key=f"model_id_{agent.id}"
+    )
     agent.model_id = f"openai:{model_id}"
