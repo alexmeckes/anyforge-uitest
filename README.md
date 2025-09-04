@@ -39,6 +39,14 @@ uv sync --all-extras -U --python=3.13
 
 ### Run the Web App
 
+We provide a simple version of the App (there is no concept of `Agent Creation/Saving`):
+
 ```
-streamlit run streamlit_app.py
+uv run streamlit run single_agent_app.py
+```
+
+And a more complete version including state management (with `Agent Creation/Saving`):
+
+```
+uv run streamlit run complete_app.py
 ```
