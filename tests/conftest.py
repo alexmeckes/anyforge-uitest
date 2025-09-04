@@ -10,7 +10,7 @@ from app.state import STATE_KEY, StreamlitState
 
 @pytest.fixture
 def any_forge_app() -> AppTest:
-    app = AppTest.from_file(str(Path(__file__).parent.parent / "streamlit_app.py"))
+    app = AppTest.from_file(str(Path(__file__).parent.parent / "complete_app.py"))
     app.run(timeout=10)
     app.session_state[STATE_KEY] = StreamlitState()
     return app
