@@ -42,6 +42,7 @@ def agent_builder_page() -> None:
             agent_keys,
             index=default_index,
             format_func=lambda x: state.development_agents[x].name or state.development_agents[x].id,
+            key="selected_agent_id",
         )
 
         state.selected_agent_id = agent_id
