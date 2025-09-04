@@ -34,5 +34,6 @@ def render_create_agent() -> None:
 
             state.development_agents[new_agent.id] = new_agent
             state.selected_agent_id = new_agent.id
+            state.messages = []  # Clear conversation history when creating a new agent
             save_agents(state.development_agents, state.completed_agents)
             st.rerun()  # this makes it so that the page refreshes and picks up the new agent as being an option.

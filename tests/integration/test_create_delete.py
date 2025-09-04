@@ -59,3 +59,23 @@ def test_delete_agent_workflow(any_forge_app: AppTest) -> None:
     assert agent_to_delete.id not in final_state.development_agents
     assert final_state.selected_agent_id is None
     assert final_state.delete_confirmation is False
+
+
+def test_create_new_agent_resets_messages(any_forge_app: AppTest) -> None:
+    """Test that creating a new agent resets the conversation messages."""
+
+    state = any_forge_app.session_state[STATE_KEY]
+    state.messages = [
+        {"role": "user", "content": "Hello"},
+        {"role": "assistant", "content": "Hi there!"},
+        {"role": "user", "content": "How are you?"},
+    ]
+
+    assert len(state.messages) == 3
+
+    any_forge_app.text_input(key="create_agent_form_agent_name").set_value("Test Agent").run()
+    any_forge_app.button(key="create_new_agent").click().run()
+
+    updated_state = any_forge_app.session_state[STATE_KEY]
+    assert len(updated_state.messages) == 0
+    assert updated_state.messages == []
