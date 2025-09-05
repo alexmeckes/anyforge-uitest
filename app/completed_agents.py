@@ -52,7 +52,7 @@ def completed_agents_page() -> None:
             if agent.tools:
                 with st.expander("Available Tools", expanded=False):
                     for tool in agent.tools:
-                        st.write(f"- {tool.get('function', {}).get('name', 'Unknown Tool')}")
+                        st.write(f"- {tool}")
 
         with col2:
             st.write("**Agent Info**")

@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import streamlit as st
@@ -16,6 +17,8 @@ class StreamlitState(BaseModel):
     development_agents: dict[str, AgentForgeAgent] = Field(default_factory=dict)
 
     completed_agents: dict[str, AgentForgeAgent] = Field(default_factory=dict)
+
+    user_id: str = Field(default=os.environ["COMPOSIO_USER_ID"])
 
     auth_statuses: list[AuthStatus] = Field(default_factory=list)
 

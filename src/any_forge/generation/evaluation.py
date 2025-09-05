@@ -27,9 +27,7 @@ class EvaluationOutput(BaseModel):
     answer: str
 
 
-def generate_evaluation(
-    task_description: str, tools: list[dict[str, Any]], existing_evaluations: list[str], **kwargs: Any
-) -> str:
+def generate_evaluation(task_description: str, tools: list[str], existing_evaluations: list[str], **kwargs: Any) -> str:
     """Generate instructions for an LLM Agent based on the task description and available tools."""
     response: ChatCompletion = completion(  # type: ignore[assignment]
         model=EVALUATION_MODEL,

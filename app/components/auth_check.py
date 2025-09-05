@@ -1,6 +1,6 @@
 import streamlit as st
 
-from any_forge.integrations import AuthStatus, Integration, check_authentication_status, get_authentication_url
+from any_forge.integrations import Integration, check_authentication_status, get_authentication_url, get_composio
 from any_forge.state import AgentForgeAgent
 from app.state import get_state
 
@@ -9,11 +9,10 @@ def render_auth_check(agent: AgentForgeAgent) -> None:
     """Render authentication status checking component."""
     if st.button("Check Credentials", type="secondary", key="check_credentials"):
         integrations = [Integration(integration) for integration in agent.integrations]
-        get_state().auth_statuses = check_authentication_status(integrations)
+        state = get_state()
+        state.auth_statuses = check_authentication_status(get_composio(), state.user_id, integrations)
 
-    if get_state().auth_statuses:
-        auth_statuses: list[AuthStatus] = get_state().auth_statuses
-
+    if auth_statuses := get_state().auth_statuses:
         authenticated_count = sum(1 for status in auth_statuses if status.is_authenticated)
         total_count = len(auth_statuses)
 
@@ -43,8 +42,9 @@ def render_auth_check(agent: AgentForgeAgent) -> None:
                     if not status.is_authenticated:
                         if status.error_message:
                             st.caption(f"Error: {status.error_message}")
-
-                        auth_url = get_authentication_url(Integration(status.integration))
+                        state = get_state()
+                        composio = get_composio()
+                        auth_url = get_authentication_url(composio, state.user_id, Integration(status.integration))
                         if auth_url:
                             st.link_button("Authenticate", auth_url, help="Click to authenticate with this service")
                         else:

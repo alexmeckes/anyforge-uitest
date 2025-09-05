@@ -4,7 +4,6 @@ from any_forge.generation.instructions import (
     INSTRUCTIONS_MODEL,
     INSTRUCTIONS_PROMPT,
     generate_instructions,
-    tool_schemas_to_strings,
 )
 
 
@@ -16,8 +15,7 @@ def test_generate_instructions() -> None:
         mock_completion.return_value = mock_response
 
         task_description = "Task description"
-        tools = [{"function": {"name": "tool1", "description": "Tool 1 description"}}]
-        converted_tools = tool_schemas_to_strings(tools)
+        tools = ["tool1", "tool_2"]
         result = generate_instructions(task_description, tools)
 
         assert mock_completion.call_args[1]["model"] == INSTRUCTIONS_MODEL
@@ -26,7 +24,7 @@ def test_generate_instructions() -> None:
             {"role": "system", "content": INSTRUCTIONS_PROMPT},
             {
                 "role": "user",
-                "content": f"Here is the task description: {task_description}\nThe list of tools that will be available: {converted_tools}",
+                "content": f"Here is the task description: {task_description}\nThe list of tools that will be available: {tools}",
             },
         ]
         assert "Here are the instructions." in result

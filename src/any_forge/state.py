@@ -1,3 +1,4 @@
+import os
 import uuid
 from typing import Any
 
@@ -7,7 +8,7 @@ from any_agent.evaluation.schemas import EvaluationOutput
 from any_agent.frameworks.tinyagent import final_answer
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from any_forge.integrations import create_tool_callable
+from any_forge.integrations import get_composio
 
 
 class AgentForgeAgent(BaseModel):
@@ -35,7 +36,7 @@ class AgentForgeAgent(BaseModel):
 
     model_id: str | None = None
     prompt: str | None = None
-    tools: list[dict[str, Any]] = Field(default_factory=list)
+    tools: list[str] = Field(default_factory=list)
 
     traces: list[AgentTrace] = Field(default_factory=list)
 
@@ -60,10 +61,8 @@ class AgentForgeAgent(BaseModel):
         """Get the agent config."""
         self._check_fully_defined()
 
-        wrapped_tools: list[Any] = []
-        for tool in self.tools:
-            wrapped_tools.append(create_tool_callable(tool["function"]))
-
+        composio = get_composio()
+        wrapped_tools: list[Any] = composio.tools.get(user_id=os.environ["COMPOSIO_USER_ID"], tools=self.tools)
         wrapped_tools.append(final_answer)
 
         return AgentConfig(

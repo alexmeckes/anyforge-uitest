@@ -20,21 +20,15 @@ Don't make the list too detailed, leave room for the agent to fill in the gaps.
 """
 
 
-def tool_schemas_to_strings(tool_schemas: list[dict[str, Any]]) -> list[str]:
-    """Convert tool schemas to a list of strings."""
-    return [f"{schema['function']['name']}: {schema['function']['description']}" for schema in tool_schemas]
-
-
-def generate_instructions(task_description: str, tool_schemas: list[dict[str, Any]], **kwargs: Any) -> str:
+def generate_instructions(task_description: str, tool_names: list[str], **kwargs: Any) -> str:
     """Generate instructions for an LLM Agent based on the task description and available tools."""
-    tools = tool_schemas_to_strings(tool_schemas)
     response = completion(
         model=INSTRUCTIONS_MODEL,
         messages=[
             {"role": "system", "content": INSTRUCTIONS_PROMPT},
             {
                 "role": "user",
-                "content": f"Here is the task description: {task_description}\nThe list of tools that will be available: {tools}",
+                "content": f"Here is the task description: {task_description}\nThe list of tools that will be available: {tool_names}",
             },
         ],
         **kwargs,
