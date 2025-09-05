@@ -28,9 +28,13 @@ class Integration(StrEnum):
     CLICKUP = "CLICKUP"
     HUBSPOT = "HUBSPOT"
     LINEAR = "LINEAR"
+    COMPOSIO_SEARCH = "COMPOSIO_SEARCH"
 
 
 SUPPORTED_INTEGRATIONS = list(Integration)
+
+# Tools that don't require authentication
+NO_AUTH_INTEGRATIONS = {Integration.COMPOSIO_SEARCH}
 
 
 class AuthStatus(BaseModel):
@@ -63,9 +67,20 @@ def check_authentication_status(
     """
     statuses = []
     for integration in integrations:
-        # this is almost definitely not completely correct, but it's a step in the right direction I think
+        # Tools that don't require authentication are always authenticated
+        if integration in NO_AUTH_INTEGRATIONS:
+            statuses.append(
+                AuthStatus(
+                    integration=str(integration),
+                    is_authenticated=True,
+                    error_message=None,
+                )
+            )
+            continue
+            
+        # Use the integration enum value directly as the toolkit slug
         connected_accounts = composio.connected_accounts.list(
-            user_ids=[user_id], toolkit_slugs=[str(integration).upper()]
+            user_ids=[user_id], toolkit_slugs=[str(integration)]
         )
 
         if any(account.status == "ACTIVE" for account in connected_accounts.items):
@@ -98,5 +113,10 @@ def get_authentication_url(composio: Composio[CallableProvider], user_id: str, i
         Authentication URL or None if unable to generate
 
     """
-    connection_request = composio.toolkits.authorize(user_id=user_id, toolkit=integration)
+    # No-auth integrations don't need authentication URLs
+    if integration in NO_AUTH_INTEGRATIONS:
+        return None
+    
+    # Use the integration enum value directly as the toolkit slug
+    connection_request = composio.toolkits.authorize(user_id=user_id, toolkit=str(integration))
     return connection_request.redirect_url if connection_request.redirect_url else None
