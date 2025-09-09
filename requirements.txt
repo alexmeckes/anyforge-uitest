@@ -1,0 +1,24 @@
+# Core dependencies
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+websockets>=11.0
+
+# Any-forge framework
+any-agent>=1.8.1
+any-llm>=0.2.0
+
+# Composio integration
+composio-core>=1.0.0
+
+# AI/ML
+openai>=1.0.0
+
+# Async support
+asyncio
+aiofiles
+
+# Additional utilities
+httpx
+python-multipart
